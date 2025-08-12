@@ -8,7 +8,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "clean": "watchman watch-del-all || true && rm -rf $TMPDIR/metro-cache .expo .cache node_modules && npm install"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
