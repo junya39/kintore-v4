@@ -1,4 +1,3 @@
-// lib/db.ts
 import * as SQLite from "expo-sqlite";
 
 // —— データベースは「非同期で1回だけ」開く
@@ -35,9 +34,28 @@ export const ready = (async () => {
 })();
 
 // ========== API（必ず await ready の後で実行） ==========
+
 export async function insertExercise(name: string, bodyPart?: string | null) {
   await ready;
   const db = await dbPromise;
+  const r = await db.runAsync(
+    `INSERT INTO exercises (name, body_part) VALUES (?, ?)`,
+    [name.trim(), bodyPart ?? null]
+  );
+  return r.lastInsertRowId!;
+}
+
+/** 追加：名前から exercises を検索→無ければ作成して id を返す */
+export async function getOrCreateExerciseByName(name: string, bodyPart?: string | null) {
+  await ready;
+  const db = await dbPromise;
+
+  const found = await db.getFirstAsync<{ id: number }>(
+    `SELECT id FROM exercises WHERE name = ? LIMIT 1`,
+    [name]
+  );
+  if (found?.id) return found.id;
+
   const r = await db.runAsync(
     `INSERT INTO exercises (name, body_part) VALUES (?, ?)`,
     [name.trim(), bodyPart ?? null]
